@@ -29,9 +29,9 @@ with app.app_context():
 
     print("Creating RestaurantPizza...")
 
-    pr1 = RestaurantPizza(restaurant=shack, pizza=cheese, price=1)
-    pr2 = RestaurantPizza(restaurant=bistro, pizza=pepperoni, price=4)
-    pr3 = RestaurantPizza(restaurant=palace, pizza=california, price=5)
+    pr1 = RestaurantPizza(restaurant_id=1, pizza_id=1, price=1)
+    pr2 = RestaurantPizza(restaurant_id=2, pizza_id=2, price=4)
+    pr3 = RestaurantPizza(restaurant_id=3, pizza_id=3, price=5)
     restaurantPizzas = [pr1, pr2, pr3]
     db.session.add_all(restaurants)
     db.session.add_all(pizzas)

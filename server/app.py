@@ -3,6 +3,7 @@ from models import db, Restaurant, RestaurantPizza, Pizza
 from flask_migrate import Migrate
 from flask import Flask, request, make_response
 from flask_restful import Api, Resource
+import ipdb
 import os
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -20,10 +21,57 @@ db.init_app(app)
 api = Api(app)
 
 
-@app.route("/")
-def index():
-    return "<h1>Code challenge</h1>"
+class Restaurants(Resource):
+    def get(self):
+      # ipdb.set_trace()
+       restaut = Restaurant.query.all()
+       rest_list = [rest.to_dict() for rest in restaut]
+       return  make_response(rest_list,200)
+    
+class RestaurantById(Resource):
+    def get(self,id):
+        restau = Restaurant.query.get(id)
+        if restau:
+            return make_response(restau.to_dict(),200)
+        else:
+            return make_response({
+  "error": "Restaurant not found"
+},404)
+    
+    def delete(self,id):
+        restau = Restaurant.query.get(id)
+        if restau:
+            db.session.delete(restau)
+            db.session.commit()
+            return make_response({},204)
+        else:
+            return make_response({
+  "error": "Restaurant not found"
+},404)
+    
+class Pizzas(Resource):
+    def get(self):
+        pizzas = Pizza.query.get.all()
+        pizzas_list = [pizza.to_dict() for pizza in pizzas]
+        return make_response(pizzas_list,200)
+    
+class RestaurantPizza(Resource):
+    def get(self):
+        pass
+    def post(self):
+       try:
+            incoming = request.get_json()
+            new_rest_piz = RestaurantPizza(**incoming)
+            db.session.add(new_rest_piz)
+            db.session.commit()
+            return make_response(new_rest_piz.to_dict,201)
+       except ValueError:
+            return make_response({"errors": ["validation errors"]},400)
 
+
+api.add_resource(Restaurants,"/restaurants")
+api.add_resource(RestaurantById,"/restaurants/<int:id>")
+api.add_resource(RestaurantPizza,"/restaurants")
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

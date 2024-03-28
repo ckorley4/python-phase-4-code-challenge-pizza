@@ -23,10 +23,16 @@ api = Api(app)
 
 class Restaurants(Resource):
     def get(self):
-      # ipdb.set_trace()
+       #ipdb.set_trace()
        restaut = Restaurant.query.all()
        rest_list = [rest.to_dict() for rest in restaut]
        return  make_response(rest_list,200)
+    def post(self):
+        incoming=request.json
+        new_restaut =Restaurant(**incoming)
+        db.session.add(new_restaut)
+        db.session.commit()
+        return make_response(new_restaut.to_dict(),201)
     
 class RestaurantById(Resource):
     def get(self,id):
@@ -34,10 +40,7 @@ class RestaurantById(Resource):
         if restau:
             return make_response(restau.to_dict(),200)
         else:
-            return make_response({
-  "error": "Restaurant not found"
-},404)
-    
+            return make_response({"error": "Restaurant not found"},404)
     def delete(self,id):
         restau = Restaurant.query.get(id)
         if restau:
@@ -45,33 +48,43 @@ class RestaurantById(Resource):
             db.session.commit()
             return make_response({},204)
         else:
-            return make_response({
-  "error": "Restaurant not found"
-},404)
+            return make_response({"error": "Restaurant not found"},404)
     
 class Pizzas(Resource):
     def get(self):
-        pizzas = Pizza.query.get.all()
+        pizzas = Pizza.query.all()
         pizzas_list = [pizza.to_dict() for pizza in pizzas]
         return make_response(pizzas_list,200)
+    def post(self):
+        incoming = request.json
+        new_pizza = Pizza(**incoming)
+        db.session.add(new_pizza)
+        db.session.commit()
+        return make_response(new_pizza.to_dict(),201)
     
-class RestaurantPizza(Resource):
+class RestaurantPizzas(Resource):
     def get(self):
-        pass
+        restau_pizza = RestaurantPizza.query.get(id)
+        if restau_pizza:
+            return make_response(restau_pizza.to_dict(),200)
+        else:
+            return make_response({"error": "Restaurant not found"},404)
     def post(self):
        try:
             incoming = request.get_json()
+            #ipdb.set_trace()
             new_rest_piz = RestaurantPizza(**incoming)
             db.session.add(new_rest_piz)
             db.session.commit()
-            return make_response(new_rest_piz.to_dict,201)
+            return make_response(new_rest_piz.to_dict(),201)
        except ValueError:
             return make_response({"errors": ["validation errors"]},400)
 
 
 api.add_resource(Restaurants,"/restaurants")
 api.add_resource(RestaurantById,"/restaurants/<int:id>")
-api.add_resource(RestaurantPizza,"/restaurants")
+api.add_resource(RestaurantPizzas,"/restaurant_pizzas")
+api.add_resource(Pizzas,'/pizzas')
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

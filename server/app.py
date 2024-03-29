@@ -25,8 +25,9 @@ class Restaurants(Resource):
     def get(self):
        #ipdb.set_trace()
        restaut = Restaurant.query.all()
-       rest_list = [rest.to_dict() for rest in restaut]
+       rest_list = [rest.to_dict(rules=('-restaurant_pizzas',)) for rest in restaut]
        return  make_response(rest_list,200)
+    
     def post(self):
         incoming=request.json
         new_restaut =Restaurant(**incoming)
@@ -39,9 +40,7 @@ class RestaurantById(Resource):
         #ipdb.set_trace()
         restau = Restaurant.query.filter(Restaurant.id==id).first()
         if restau:
-            response = make_response(restau.to_dict(),200)
-            response.headers['content_type'] =  'application/json'
-            return  response
+            return make_response(restau.to_dict(),200)
         else:
             return make_response({"error": "Restaurant not found"},404)
     def delete(self,id):
@@ -56,7 +55,7 @@ class RestaurantById(Resource):
 class Pizzas(Resource):
     def get(self):
         pizzas = Pizza.query.all()
-        pizzas_list = [pizza.to_dict() for pizza in pizzas]
+        pizzas_list = [pizza.to_dict(rules=('-restaurant_pizzas',)) for pizza in pizzas]
         return make_response(pizzas_list,200)
     def post(self):
         incoming = request.json

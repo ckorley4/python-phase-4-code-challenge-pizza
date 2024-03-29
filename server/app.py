@@ -36,9 +36,12 @@ class Restaurants(Resource):
     
 class RestaurantById(Resource):
     def get(self,id):
-        restau = Restaurant.query.get(id)
+        #ipdb.set_trace()
+        restau = Restaurant.query.filter(Restaurant.id==id).first()
         if restau:
-            return make_response(restau.to_dict(),200)
+            response = make_response(restau.to_dict(),200)
+            response.headers['content_type'] =  'application/json'
+            return  response
         else:
             return make_response({"error": "Restaurant not found"},404)
     def delete(self,id):
@@ -64,11 +67,11 @@ class Pizzas(Resource):
     
 class RestaurantPizzas(Resource):
     def get(self):
-        restau_pizza = RestaurantPizza.query.get(id)
-        if restau_pizza:
-            return make_response(restau_pizza.to_dict(),200)
-        else:
-            return make_response({"error": "Restaurant not found"},404)
+        #ipdb.set_trace()
+        restau_pizza = RestaurantPizza.query.all()
+        restau_pizza_list = [rest_pizza.to_dict() for rest_pizza in restau_pizza ]
+        return make_response(restau_pizza_list,200)
+        
     def post(self):
        try:
             incoming = request.get_json()
@@ -79,6 +82,7 @@ class RestaurantPizzas(Resource):
             return make_response(new_rest_piz.to_dict(),201)
        except ValueError:
             return make_response({"errors": ["validation errors"]},400)
+       
 
 
 api.add_resource(Restaurants,"/restaurants")
